@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: "table", defaultValue: "csvtotable", trim: true, description: "table name")
+    }
+    stages {
+        stage('Jen_artifacts_db') {
+            steps {
+                sh 'pg_dump dbfordump > dbdump.sql'
+            }
+        }
+        stage ('Sql_query') {
+            steps {
+                sh '''psql -d dbfordump -c "SELECT * FROM $table where ip = '45.148.38.211'"'''
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'dbdump.sql'
+        }
+    }
+}

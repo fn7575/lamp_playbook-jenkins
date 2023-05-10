@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: "git@github.com:fn7575/lamp_playbook.git", credentialsId: 'github_key' // здесь добавляем credentialsId и указываем наш ID.
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'ansible-playbook -i inventory.ini playbook.yml'
+            }
+        }
+        stage('Dump_db') {
+            steps {
+                sh '''if [ "$( psql -XtAc "SELECT 1 FROM pg_database WHERE datname='dbfordump'" )" = '1' ]; then     echo "Database already exists"; else      createdb dbfordump; PGPASSWORD="lox228322" pg_restore -h localhost -p 5432 -U postgres -d dbfordump -v "csvtodb1.dump.sql"; fi'''
+            }
+        }
+    }
+}

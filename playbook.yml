@@ -1,0 +1,12 @@
+---
+- name: LAMP stack deploy
+  become: yes
+  become_method: sudo
+  become_user: root
+  hosts: all
+  vars_files:
+   - roles/apache/vars/default.yml
+  roles:    
+   - apache
+   - mysql
+   - php
